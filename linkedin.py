@@ -51,7 +51,7 @@ class WebBus:
         if self.browser.lower() == 'firefox':
             self.driver = webdriver.Firefox()
         elif self.browser.lower() == 'chrome':
-            self.driver = webdriver.Chrome()
+            self.driver = webdriver.Chrome("D:\\Study\\3rd\\688\\team\\chromedriver_win32\\chromedriver.exe")
         elif self.browser.lower() == 'phantomjs':
             self.driver = webdriver.PhantomJS()
         else:
@@ -139,9 +139,8 @@ def crawl(browser, username, infile, outfile):
 
     # first check and read the input file
     all_names = collect_names(infile)
-
     fieldnames = ['fullname', 'locality', 'industry', 'current summary',
-                  'past summary', 'education', ]
+                  'past summary', 'education','skills','endorsements','positions']
     # then check we can write the output file
     # we don't want to complete process and show error about not
     # able to write outputs
@@ -157,114 +156,206 @@ def crawl(browser, username, infile, outfile):
         bus.driver.get(LINKEDIN_URL)
 
         login_into_linkedin(bus.driver, username)
-
-        for name in all_names:
-            click.echo("Getting ...")
-            try:
-                search_input = bus.driver.find_element_by_id('main-search-box')
-            except NoSuchElementException:
-                continue
-            search_input.send_keys(name)
-
-            search_form = bus.driver.find_element_by_id('global-search')
-            search_form.submit()
-#            search_button = bus.driver.find_element_by_xpath(search_btn)
-#            search_button.click()
-
-            profiles = []
-
-            # collect all the profile links
-            results = None
-            try:
-                results = bus.driver.find_element_by_id('results-container')
-            except NoSuchElementException:
-                continue
-            links = results.find_elements_by_xpath(link_title)
-
-            # get all the links before going through each page
-            links = [link.get_attribute('href') for link in links]
-            for link in links:
-                # XXX: This whole section should be separated from this method
-                # XXX: move try-except to context managers
-                bus.driver.get(link)
-
-                overview = None
-                overview_xpath = '//div[@class="profile-overview-content"]'
-                try:
-                    overview = bus.driver.find_element_by_xpath(overview_xpath)
-                except NoSuchElementException:
-                    click.echo("No overview section skipping this user")
+        iteration = 0;
+        idx = 0;
+        while iteration < 20000:
+                name = all_names[idx]
+                if name in all_names[:idx]:
+                    idx += 1
                     continue
-
-                # every xpath below here are relative
-                fullname = None
-                fullname_xpath = './/span[@class="full-name"]'
+                iteration += 1
+                idx += 1
+                click.echo("Getting ...")
                 try:
-                    fullname = overview.find_element_by_xpath(fullname_xpath)
+                    search_input = bus.driver.find_element_by_id('main-search-box')
                 except NoSuchElementException:
-                    # we store empty fullname : notsure for this
-                    fullname = ''
-                else:
-                    fullname = fullname.text.strip()
+                    continue
+                search_input.send_keys(name)
 
-                locality = None
+                search_form = bus.driver.find_element_by_id('global-search')
+                search_form.submit()
+    #            search_button = bus.driver.find_element_by_xpath(search_btn)
+    #            search_button.click()
+
+                profiles = []
+
+                # collect all the profile links
+                results = None
                 try:
-                    locality = overview.find_element_by_class_name('locality')
+                    results = bus.driver.find_element_by_id('results-container')
                 except NoSuchElementException:
-                    locality = ''
-                else:
-                    locality = locality.text.strip()
+                    continue
+                links = results.find_elements_by_xpath(link_title)
 
-                industry = None
-                try:
-                    industry = overview.find_element_by_class_name('industry')
-                except NoSuchElementException:
-                    industry = ''
-                else:
-                    industry = industry.text.strip()
+                # get all the links before going through each page
+                links = [link.get_attribute('href') for link in links]
+                for link in links:
+                    # XXX: This whole section should be separated from this method
+                    # XXX: move try-except to context managers
+                    bus.driver.get(link)
 
-                current_summary = None
-                csummary_xpath = './/tr[@id="overview-summary-current"]/td'
-                try:
-                    current_summary = overview.find_element_by_xpath(csummary_xpath)
-                except NoSuchElementException:
-                    current_summary = ''
-                else:
-                    current_summary = current_summary.text.strip()
+                    overview = None
+                    overview_xpath = '//div[@class="profile-overview-content"]'
+                    try:
+                        overview = bus.driver.find_element_by_xpath(overview_xpath)
+                    except NoSuchElementException:
+                        click.echo("No overview section skipping this user")
+                        continue
 
-                past_summary = None
-                psummary_xpath = './/tr[@id="overview-summary-past"]/td'
-                try:
-                    past_summary = overview.find_element_by_xpath(psummary_xpath)
-                except NoSuchElementException:
-                    past_summary = ''
-                else:
-                    past_summary = past_summary.text.strip()
+                    # every xpath below here are relative
+                    fullname = None
+                    fullname_xpath = './/span[@class="full-name"]'
+                    try:
+                        fullname = overview.find_element_by_xpath(fullname_xpath)
+                    except NoSuchElementException:
+                        # we store empty fullname : notsure for this
+                        fullname = ''
+                        pass
+                    else:
+                        fullname = fullname.text.strip()
 
-                education = None
-                education_xpath = './/tr[@id="overview-summary-education"]/td'
-                try:
-                    education = overview.find_element_by_xpath(education_xpath)
-                except NoSuchElementException:
-                    education = ''
-                else:
-                    education = education.text.strip()
+                    locality = None
+                    try:
+                        locality = overview.find_element_by_class_name('locality')
+                    except NoSuchElementException:
+                        locality = ''
+                        pass
+                    else:
+                        locality = locality.text.strip()
+                    # print "loc",locality
 
-                data = {
-                    'fullname': fullname,
-                    'locality': locality,
-                    'industry': industry,
-                    'current summary': current_summary,
-                    'past summary': past_summary,
-                    'education': education,
-                }
-                profiles.append(data)
+                    industry = None
+                    try:
+                        industry = overview.find_element_by_class_name('industry')
+                    except NoSuchElementException:
+                        industry = ''
+                        pass
+                    else:
+                        industry = industry.text.strip()
 
-            with open(outfile, 'a+') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writerows(profiles)
+                    current_summary = None
+                    csummary_xpath = './/tr[@id="overview-summary-current"]/td'
+                    try:
+                        current_summary = overview.find_element_by_xpath(csummary_xpath)
+                    except NoSuchElementException:
+                        current_summary = ''
+                    else:
+                        current_summary = current_summary.text.strip()
 
-            click.echo("Obtained ..." + name)
+                    past_summary = None
+                    psummary_xpath = './/tr[@id="overview-summary-past"]/td'
+                    try:
+                        past_summary = overview.find_element_by_xpath(psummary_xpath)
+                    except NoSuchElementException:
+                        past_summary = ''
+                        pass
+                    else:
+                        past_summary = past_summary.text.strip()
+
+                    education = None
+                    education_xpath = './/tr[@id="overview-summary-education"]/td'
+                    try:
+                        education = overview.find_element_by_xpath(education_xpath)
+                    except NoSuchElementException:
+                        education = ''
+                    else:
+                        education = education.text.strip()
+
+                    skills = ''
+                    skills_xpath =  '//a[@class="endorse-item-name-text"]'
+                    try:
+                        skills_summary = overview.find_elements_by_xpath(skills_xpath)
+                    except NoSuchElementException:
+                        skills = ''
+                    else:
+                        try:
+                            skills_list = [skill.text for skill in skills_summary]
+                            for i in skills_list:
+                                skills += str(i)+','
+                        except Exception, e:
+                            pass
+
+
+
+                    endorsements = ''
+                    endorsements_xpath =  '//span[@class="num-endorsements"]'
+                    try:
+                        endorsements_summary = overview.find_elements_by_xpath(endorsements_xpath)
+                    except NoSuchElementException:
+                        endorsements = ''
+                    else:
+                        try:
+                            endorsements_list = [endorsement.text for endorsement in endorsements_summary]
+                            for i in endorsements_list:
+                                if i=="":
+                                    i = 0
+                                endorsements += str(i)+','
+                        except Exception, e:
+                            pass
+
+
+                    positions = ''
+                    positions_xpath =  '//a[@title="Learn more about this title"]'
+                    try:
+                        positions_summary = overview.find_elements_by_xpath(positions_xpath)
+                    except NoSuchElementException:
+                        positions = ''
+                    else:
+                        try:
+                            positions_list = [position.text for position in positions_summary]
+                            for i in positions_list:
+                                positions += str(i)+','
+                        except Exception, e:
+                            pass
+
+
+                    name_elements = None
+                    name_list = []
+                    name_xpath = '//a[contains(@href,"trk=prof-sb-browse_map-name")]'
+                    try:
+                        name_elements = overview.find_elements_by_xpath(name_xpath)
+                    except NoSuchElementException:
+                        name_list = ''
+                        print "失败了卧槽!"
+                    else:
+                        for element in name_elements:
+                            try:
+                                if str(element.text.strip().lower()) != '' and (str(element.text.strip().lower()) not in name_list) and (str(element.text.strip().lower()) not in all_names):
+                                    name_list.append(str(element.text.strip().lower()))
+                            except Exception:
+                                continue
+                        if len(name_list) != 0:
+                            with open("list_of_names.csv","a+") as f:
+                                wr = csv.writer(f,delimiter="\n")
+                                wr.writerow(name_list)
+                        #print name_list
+                    all_names = collect_names(infile)
+
+                    data = {
+                        'fullname': fullname,
+                        'locality': locality,
+                        'industry': industry,
+                        'current summary': current_summary,
+                        'past summary': past_summary,
+                        'education': education,
+                        'skills':skills,
+                        'endorsements':endorsements,
+                        'positions': positions
+                    }
+                    profiles.append(data)
+                print len(profiles)
+                print profiles
+
+                with open(outfile, 'a+') as csvfile:
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    for profile in profiles:
+                        try:
+                            writer.writerow(profile)
+                        except Exception:
+                            continue
+
+                click.echo("Obtained ..." + name)
+
 
 
 @click.command()
