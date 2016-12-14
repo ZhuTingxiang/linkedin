@@ -2,8 +2,12 @@ Author:
 Tingxiang Zhu (tingxiaz)
 Mengyao Zhang (mengyaoz)
 
-Produce Youtube Video:
+Introduction Youtube Video of the project:
 https://www.youtube.com/watch?v=yg5A3c33PSw
+
+Project Tutorial NBviewer Link:
+http://nbviewer.jupyter.org/gist/ZhuTingxiang/7ba604c9d6ea1d096620c5e999f19cdb
+
 
 Directions:
 // Reference: https://github.com/idwaker/linkedin
@@ -23,8 +27,6 @@ run python model.py to build and train models (the file name to get data should 
 
 run python word_cloud.py to generate word clouds (word_cloud.py takes an variable generated in model.py as input, therefore it requires an IDE that stores the variable. The filename for the word cloud mask and save path should be modified)
 
-NBviewer Link:
-http://nbviewer.jupyter.org/gist/ZhuTingxiang/7ba604c9d6ea1d096620c5e999f19cdb
 
 References:
 linkedin.py takes reference from https://github.com/idwaker/linkedin to scrap LinkedIn file
