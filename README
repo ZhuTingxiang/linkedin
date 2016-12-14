@@ -2,6 +2,9 @@ Author:
 Tingxiang Zhu (tingxiaz)
 Mengyao Zhang (mengyaoz)
 
+Produce Youtube Video:
+https://www.youtube.com/watch?v=yg5A3c33PSw
+
 Directions:
 // Reference: https://github.com/idwaker/linkedin
 To scrap LinkedIn file: run
@@ -13,7 +16,7 @@ python linkedin.py crawl your_email_address list_of_names.csv dump_profiles_here
 (list_of_names.csv should be a csv file that contains at least one name used to start scraping)
 
 run python data_process.py to pre-process data
-run python get_new_positions.py to get standardized positions 
+run python get_new_positions.py to get standardized positions
 run python wiki_word2vec_test.py to check word similarity
 
 run python model.py to build and train models (the file name to get data should be modified)
@@ -25,6 +28,6 @@ http://nbviewer.jupyter.org/gist/ZhuTingxiang/7ba604c9d6ea1d096620c5e999f19cdb
 
 References:
 linkedin.py takes reference from https://github.com/idwaker/linkedin to scrap LinkedIn file
-data_process.py takes reference from 
+data_process.py takes reference from
 wiki_word2vec_test.py takes reference from http://www.shuang0420.com/2016/05/30/gensim-word2vec%E5%AE%9E%E6%88%98/ and https://radimrehurek.com/gensim/ to get word similarity
 word_cloud.py takes reference from https://github.com/amueller/word_cloud to generate word cloud
